@@ -1,3 +1,4 @@
 MyDbTest/
 derby.log
 target/
+/bin
