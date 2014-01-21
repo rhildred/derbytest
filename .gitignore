@@ -2,3 +2,5 @@ MyDbTest/
 derby.log
 target/
 /bin
+.classpath
+.settings/
