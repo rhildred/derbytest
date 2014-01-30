@@ -1,4 +1,4 @@
 #!/bin/bash
 cd "$OPENSHIFT_REPO_DIR"
-mvn package exec:java -Dexec.mainClass=ca.on.conestogac.Migrate
+mvn package exec:java -Dexec.mainClass=ca.on.conestogac.Migrate site
 
