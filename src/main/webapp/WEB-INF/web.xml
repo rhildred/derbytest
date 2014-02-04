@@ -17,5 +17,15 @@
 		<servlet-name>fileServlet</servlet-name>
 		<url-pattern>/site/*</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>wsChat</servlet-name>
+		<servlet-class>ca.on.conestogac.ChatWebSocketServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>wsChat</servlet-name>
+		<url-pattern>/websocket/chat</url-pattern>
+	</servlet-mapping>
 </web-app>
 
