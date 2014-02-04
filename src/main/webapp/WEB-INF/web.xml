@@ -9,7 +9,7 @@
 		<servlet-class>net.balusc.webapp.FileServlet</servlet-class>
 		<init-param>
 			<param-name>basePath</param-name>
-			<param-value>/../../../target/site</param-value>
+			<param-value>/target/site</param-value>
 		</init-param>
 	</servlet>
 

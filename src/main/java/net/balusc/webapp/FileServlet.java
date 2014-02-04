@@ -67,8 +67,13 @@ public class FileServlet extends HttpServlet {
     public void init() throws ServletException {
 
         // Get base path (path to get all resources from) as init parameter.
-        this.basePath = getServletContext().getRealPath(getInitParameter("basePath"));
-
+        //this.basePath = getServletContext().getRealPath(getInitParameter("basePath"));
+    	if(System.getenv("OPENSHIFT_REPO_DIR") != null){
+    		this.basePath = System.getenv("OPENSHIFT_REPO_DIR") + getInitParameter("basePath");
+    	}else{
+    		this.basePath = System.getProperty("user.dir") + getInitParameter("basePath");
+    	}
+    	System.out.println(this.basePath);
         // Validate base path.
         if (this.basePath == null) {
             throw new ServletException("FileServlet init param 'basePath' is required.");
