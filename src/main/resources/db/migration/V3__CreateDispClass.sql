@@ -1,6 +1,7 @@
 CREATE TABLE DispClass (
-	idDispClass INT PRIMARY KEY,
-	name VARCHAR(45)
+	idDispClass INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
+	name VARCHAR(45),
+	CONSTRAINT DispClass_primary PRIMARY KEY (idDispClass)
 );
 
-INSERT INTO DispClass VALUES(1, 'TestMon');
+INSERT INTO DispClass(name) VALUES('TestMon');
