@@ -19,8 +19,9 @@ public class InspectionArchetype {
 		try{
 			//get idDispClass
 			delConnection = OpenShiftDerbySource.getConnection();
+			String sName = (String) oInput.get("name");
 			oStmt = delConnection.prepareStatement("SELECT idDispClass FROM DispClass WHERE name = ?");
-			oStmt.setString(1, (String) oInput.get("name"));
+			oStmt.setString(1, sName);
 			rs = oStmt.executeQuery();
 			rs.next();
 			long idDispClass = rs.getLong(1);
@@ -40,7 +41,11 @@ public class InspectionArchetype {
             if (affectedRows == 0) {
             	// we would expect to delete at least 1 here
                 throw new SQLException("Deleting DispClass failed, no rows affected.");
-            }			
+            }
+            //now we drop table ... there should be no way to get here without having a valid java identifier 
+    		if(!SourceVersion.isName(sName))
+    			throw new Exception("name " + sName + " is not a valid java identifier");
+            delConnection.prepareStatement("DROP TABLE " + sName).executeUpdate();
 			delConnection.commit();
 		}catch(Exception e){
 			//fail silently because we want to keep on creating a new one in the test
@@ -73,7 +78,7 @@ public class InspectionArchetype {
 		if(!SourceVersion.isName(sName))
 			throw new Exception("name " + sName + " is not a valid java identifier");
 		sSQL += sName + "(\nid" + sName + " INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),";
-		List<Map> aAttributes = (List<Map>)oInput.get("inspectionObjectAttributes");
+		List<Map> aAttributes = (List<Map>)oInput.get("archetypeAttributes");
         for(Map oAttribute : aAttributes){
         	String sAttributeName = (String)oAttribute.get("name");
         	if(!SourceVersion.isName(sAttributeName))
@@ -107,7 +112,7 @@ public class InspectionArchetype {
             } else {
                 throw new SQLException("Creating DispClass failed, no generated key obtained.");
             }
-			List<Map> aAttributes = (List<Map>)oInput.get("inspectionObjectAttributes");
+			List<Map> aAttributes = (List<Map>)oInput.get("archetypeAttributes");
 			oStmtAttribute = connection.prepareStatement("INSERT INTO DispAttribute(idDispClass, name, SQLType, formType) VALUES(?, ?, ?, ?)");
             for(Map oAttribute : aAttributes){
             	oStmtAttribute.setLong(1, nID);

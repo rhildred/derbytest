@@ -69,7 +69,7 @@ public class TestDDL {
         	}
         }
 	}
-	String sNewInspectionObject ="{\"name\":\"bobsled\", \"inspectionObjectAttributes\":[{\"name\":\"name\", \"SQLType\":\"varchar(45)\", \"formType\":\"text\"}, {\"name\":\"dateOfManufacture\", \"SQLType\":\"date\", \"formType\":\"date\"}]}";
+	String sNewInspectionObject ="{\"name\":\"bobsled\", \"archetypeAttributes\":[{\"name\":\"name\", \"SQLType\":\"varchar(45)\", \"formType\":\"text\"}, {\"name\":\"dateOfManufacture\", \"SQLType\":\"date\", \"formType\":\"date\"}]}";
 	@Test
 	public void testJSONParsing()
 	{
@@ -105,5 +105,37 @@ public class TestDDL {
 	{
 		assertTrue("VARCHAR(45)".matches("VARCHAR[(][0-9]{1,5}[)]"));
 	}
-	
+	String sNewBobsled ="{\"archetype\":\"bobsled\", \"name\":\"cool running\", \"dateOfManufacture\":\"1997-01-15\"}";
+	@Test
+	public void testSNewBobSled()
+	{
+		JSONObject oInput = (JSONObject)JSONValue.parse(sNewBobsled);
+		assertTrue(((String)oInput.get("archetype")).equals("bobsled"));
+		
+	}
+	@Test
+	public void testBobSledCreation()
+	{
+		InspectionObject oBobsled = new InspectionObject(sNewBobsled);
+		try {
+			oBobsled.save();
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+		assertTrue(true);
+	}
+	String sUpdatedBobsled ="{\"archetype\":\"bobsled\", \"idbobsled\":1, \"name\":\"cool stopping\", \"dateOfManufacture\":\"1997-01-15\"}";
+	@Test
+	public void testBobSledUpdation()
+	{
+		InspectionObject oBobsled = new InspectionObject(sUpdatedBobsled);
+		try {
+			oBobsled.save();
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+		assertTrue(true);
+	}
 }
