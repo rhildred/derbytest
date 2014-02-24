@@ -69,8 +69,24 @@ public class InspectionArchetype {
 	}
 	private void createSQLTable() throws Exception
 	{
-		
-		throw new Exception("not implemented");
+		String sSQL = "CREATE TABLE ", sName = (String) oInput.get("name");
+		if(!SourceVersion.isName(sName))
+			throw new Exception("name " + sName + " is not a valid java identifier");
+		sSQL += sName + "(\nid" + sName + " INT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),";
+		List<Map> aAttributes = (List<Map>)oInput.get("inspectionObjectAttributes");
+        for(Map oAttribute : aAttributes){
+        	String sAttributeName = (String)oAttribute.get("name");
+        	if(!SourceVersion.isName(sAttributeName))
+    			throw new Exception("name " + sAttributeName + " is not a valid java identifier");
+        	String sSQLType = ((String)oAttribute.get("SQLType")).toUpperCase();
+        	if(!sSQLType.matches("INT") &&
+        			!sSQLType.matches("DATE") &&
+        			!sSQLType.matches("VARCHAR[(][0-9]{1,5}[)]"))
+        			throw new Exception("sqlType " + sSQLType + " is not a valid SQLType");
+        	sSQL += "\n" + sAttributeName + " " + sSQLType + ",";
+        }
+        sSQL += "\nCONSTRAINT " + sName + "_primary_key PRIMARY KEY (id" + sName + "))";
+        connection.createStatement().execute(sSQL);
 	}
 	private void insertDispClassAndAttributes() throws Exception
 	{

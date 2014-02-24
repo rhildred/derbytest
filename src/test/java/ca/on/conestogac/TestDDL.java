@@ -100,5 +100,10 @@ public class TestDDL {
 	{
 		assertTrue(SourceVersion.isName("test me") == false);
 	}
+	@Test
+	public void testVarchar()
+	{
+		assertTrue("VARCHAR(45)".matches("VARCHAR[(][0-9]{1,5}[)]"));
+	}
 	
 }
