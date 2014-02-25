@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 
 import javax.lang.model.SourceVersion;
@@ -16,6 +17,14 @@ public class InspectionObject {
 	{
 		oInput = (JSONObject)JSONValue.parse(sInput);
 	}
+	public String get(String sKey)
+	{
+		return (String) oInput.get(sKey);
+	}
+	public void set(String sKey, String sValue)
+	{
+		oInput.put(sKey, sValue);
+	}
 	public void delete() throws Exception
 	{
 		Connection delConnection = null;
@@ -26,7 +35,7 @@ public class InspectionObject {
 		try{
 			delConnection = OpenShiftDerbySource.getConnection();
 			oStmt = delConnection.prepareStatement("DELETE FROM " + sName + " WHERE id" + sName + " = ?");
-			oStmt.setLong(1, (Long)oInput.get("id" + sName));
+			oStmt.setString(1, (String)oInput.get("id" + sName));
 			int nRows = oStmt.executeUpdate();
 			if(nRows == 0) throw new Exception("no rows deleted");
 		}finally{
@@ -56,20 +65,34 @@ public class InspectionObject {
 			oStmt.setLong(1, idDispClass);
 			rs = oStmt.executeQuery();
 			String sSQL = null;
+			boolean bInsert = false;
+			aBindVars.clear();
 			if(oInput.get("id" + oInput.get("archetype")) == null){
 				sSQL = doInsert(rs);
+				bInsert = true;
 			}
 			else{
 				sSQL = doUpdate(rs);
 			}
 			oStmt.close();
-			oStmt = insConnection.prepareStatement(sSQL);
+			oStmt = insConnection.prepareStatement(sSQL, Statement.RETURN_GENERATED_KEYS);
 			int nColumn = 1;
 			for(String sValue: aBindVars){
 				oStmt.setString(nColumn++, sValue);
 			}
 			int nRowsAffected = oStmt.executeUpdate();
 			if(nRowsAffected == 0)throw new Exception("0 rows updated by insert");
+			if(bInsert)
+			{
+	            rs.close();
+	            rs = oStmt.getGeneratedKeys();
+	            if (rs.next()) {
+	                set("id" + sName, rs.getString(1));
+	            } else {
+	                throw new SQLException("Creating " + sName + " failed, no generated key obtained.");
+	            }
+
+			}
 		}finally{
             if (insConnection != null) try { insConnection.close(); } catch (SQLException logOrIgnore) {}			
 		}
@@ -84,7 +107,7 @@ public class InspectionObject {
 				sSQL += ", ";
 			}
 			sSQL += sColName + " = ?";
-			aBindVars.add((String)oInput.get(sColName));
+			aBindVars.add((String) oInput.get(sColName));
 		}
 		sSQL += " WHERE id" + sName + " = ?";
 		aBindVars.add(oInput.get("id" + sName).toString());
@@ -103,7 +126,7 @@ public class InspectionObject {
 			}
 			sSQL += sColName;
 			sValues += "?";
-			aBindVars.add((String)oInput.get(sColName));
+			aBindVars.add((String) oInput.get(sColName));
 		}
 		sSQL += sValues + ")";
 		return sSQL;

@@ -129,15 +129,14 @@ public class TestDDL {
 		}
 		assertTrue(true);
 	}
-	String sUpdatedBobsled ="{\"archetype\":\"bobsled\", \"idbobsled\":1, \"name\":\"cool stopping\", \"dateOfManufacture\":\"1997-01-15\"}";
 	@Test
 	public void testBobSledUpdation()
 	{
 		try {
 			InspectionObject oBobsled = new InspectionObject(sNewBobsled);
 			oBobsled.save();
-			InspectionObject oBobsled2 = new InspectionObject(sUpdatedBobsled);
-			oBobsled2.save();
+			oBobsled.set("name", "cool stopping");
+			oBobsled.save();
 			Connection insConnection = OpenShiftDerbySource.getConnection();
         	Statement oStmt = insConnection.createStatement();
         	// we would send this string back to the client
@@ -150,15 +149,13 @@ public class TestDDL {
 		}
 		assertTrue(true);
 	}
-	String sDeletedBobsled ="{\"archetype\":\"bobsled\", \"idbobsled\":1}";
 	@Test
 	public void testBobSledDeletion()
 	{
 		try {
 			InspectionObject oBobsled = new InspectionObject(sNewBobsled);
 			oBobsled.save();
-			InspectionObject oBobsled2 = new InspectionObject(sDeletedBobsled);
-			oBobsled2.delete();
+			oBobsled.delete();
 			Connection insConnection = OpenShiftDerbySource.getConnection();
         	Statement oStmt = insConnection.createStatement();
         	// we would send this string back to the client
