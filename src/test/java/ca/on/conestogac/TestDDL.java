@@ -2,9 +2,8 @@ package ca.on.conestogac;
 
 import org.junit.Test;
 import org.json.simple.*;
+
 import javax.lang.model.*;
-
-
 
 import static org.junit.Assert.*;
 
@@ -119,6 +118,11 @@ public class TestDDL {
 		InspectionObject oBobsled = new InspectionObject(sNewBobsled);
 		try {
 			oBobsled.save();
+			Connection insConnection = OpenShiftDerbySource.getConnection();
+        	Statement oStmt = insConnection.createStatement();
+        	// we would send this string back to the client
+        	ResultSet oRs = oStmt.executeQuery("SELECT * FROM bobsled");
+        	System.out.println(ResultSetValue.toJsonString(oRs));
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
@@ -129,9 +133,38 @@ public class TestDDL {
 	@Test
 	public void testBobSledUpdation()
 	{
-		InspectionObject oBobsled = new InspectionObject(sUpdatedBobsled);
 		try {
+			InspectionObject oBobsled = new InspectionObject(sNewBobsled);
 			oBobsled.save();
+			InspectionObject oBobsled2 = new InspectionObject(sUpdatedBobsled);
+			oBobsled2.save();
+			Connection insConnection = OpenShiftDerbySource.getConnection();
+        	Statement oStmt = insConnection.createStatement();
+        	// we would send this string back to the client
+        	ResultSet oRs = oStmt.executeQuery("SELECT * FROM bobsled");
+        	System.out.println(ResultSetValue.toJsonString(oRs));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+		assertTrue(true);
+	}
+	String sDeletedBobsled ="{\"archetype\":\"bobsled\", \"idbobsled\":1}";
+	@Test
+	public void testBobSledDeletion()
+	{
+		try {
+			InspectionObject oBobsled = new InspectionObject(sNewBobsled);
+			oBobsled.save();
+			InspectionObject oBobsled2 = new InspectionObject(sDeletedBobsled);
+			oBobsled2.delete();
+			Connection insConnection = OpenShiftDerbySource.getConnection();
+        	Statement oStmt = insConnection.createStatement();
+        	// we would send this string back to the client
+        	ResultSet oRs = oStmt.executeQuery("SELECT * FROM bobsled");
+        	System.out.println(ResultSetValue.toJsonString(oRs));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);

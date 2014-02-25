@@ -19,6 +19,7 @@ public class InspectionArchetype {
 		try{
 			//get idDispClass
 			delConnection = OpenShiftDerbySource.getConnection();
+			delConnection.setAutoCommit(false);
 			String sName = (String) oInput.get("name");
 			oStmt = delConnection.prepareStatement("SELECT idDispClass FROM DispClass WHERE name = ?");
 			oStmt.setString(1, sName);
@@ -28,7 +29,6 @@ public class InspectionArchetype {
 			rs.close();
 			oStmt.close();
 			// now we delete from dispAtributes
-			delConnection.setAutoCommit(false);
 			oStmt = delConnection.prepareStatement("DELETE FROM DispAttribute WHERE idDispClass = ?");
 			oStmt.setLong(1, idDispClass);
 			// could conceivably have a DispClass with no dispattributes

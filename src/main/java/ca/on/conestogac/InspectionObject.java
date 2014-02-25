@@ -4,6 +4,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.*;
+
+import javax.lang.model.SourceVersion;
 
 import org.json.simple.*;
 
@@ -13,22 +16,28 @@ public class InspectionObject {
 	{
 		oInput = (JSONObject)JSONValue.parse(sInput);
 	}
+	public void delete() throws Exception
+	{
+		Connection delConnection = null;
+		String sName = (String) oInput.get("archetype");
+		if(!SourceVersion.isName(sName))
+			throw new Exception("name " + sName + " is not a valid java identifier");
+		PreparedStatement oStmt = null; 
+		try{
+			delConnection = OpenShiftDerbySource.getConnection();
+			oStmt = delConnection.prepareStatement("DELETE FROM " + sName + " WHERE id" + sName + " = ?");
+			oStmt.setLong(1, (Long)oInput.get("id" + sName));
+			int nRows = oStmt.executeUpdate();
+			if(nRows == 0) throw new Exception("no rows deleted");
+		}finally{
+            if (delConnection != null) try { delConnection.close(); } catch (SQLException logOrIgnore) {}			
+            if (oStmt != null) try { oStmt.close(); } catch (SQLException logOrIgnore) {}			
+		}
+	}
+	Connection insConnection = null;
+	List<String> aBindVars = new LinkedList<String>();
 	public void save() throws Exception
 	{
-		if(oInput.get("id" + oInput.get("archetype")) == null){
-			doInsert();
-		}
-		else{
-			doUpdate();
-		}
-	}
-	private void doUpdate() throws Exception {
-		// TODO Auto-generated method stub
-		throw new Exception("not implemented");
-		
-	}
-	private void doInsert() throws Exception {
-		Connection insConnection = null;
 		PreparedStatement oStmt = null;
 		ResultSet rs = null;
 		try{
@@ -43,19 +52,60 @@ public class InspectionObject {
 			oStmt.close();
 			rs.close();
 			//get attributes to build sql
-			oStmt = insConnection.prepareStatement("SELECT name FROM idDispAttribute where idDispClass = ?");
+			oStmt = insConnection.prepareStatement("SELECT name FROM DispAttribute where idDispClass = ?");
 			oStmt.setLong(1, idDispClass);
 			rs = oStmt.executeQuery();
-			int nColNo = 1;
-			while(rs.next()){
-				String sColName = rs.getString(1);
+			String sSQL = null;
+			if(oInput.get("id" + oInput.get("archetype")) == null){
+				sSQL = doInsert(rs);
 			}
+			else{
+				sSQL = doUpdate(rs);
+			}
+			oStmt.close();
+			oStmt = insConnection.prepareStatement(sSQL);
+			int nColumn = 1;
+			for(String sValue: aBindVars){
+				oStmt.setString(nColumn++, sValue);
+			}
+			int nRowsAffected = oStmt.executeUpdate();
+			if(nRowsAffected == 0)throw new Exception("0 rows updated by insert");
 		}finally{
-			if (rs != null) try { rs.close(); } catch (SQLException logOrIgnore) {}
-            if (oStmt != null) try { oStmt.close(); } catch (SQLException logOrIgnore) {}        	
             if (insConnection != null) try { insConnection.close(); } catch (SQLException logOrIgnore) {}			
-			
 		}
-		throw new Exception("not implemented");
+	}
+	private String doUpdate(ResultSet rs) throws Exception {
+		int nColNo = 0;
+		String sName = (String) oInput.get("archetype");
+		String sSQL = "UPDATE " + sName + " SET ";
+		while(rs.next()){
+			String sColName = rs.getString(1);
+			if(nColNo++ > 0){
+				sSQL += ", ";
+			}
+			sSQL += sColName + " = ?";
+			aBindVars.add((String)oInput.get(sColName));
+		}
+		sSQL += " WHERE id" + sName + " = ?";
+		aBindVars.add(oInput.get("id" + sName).toString());
+		return sSQL;		
+	}
+	private String doInsert(ResultSet rs) throws Exception {
+		int nColNo = 0;
+		String sName = (String) oInput.get("archetype");
+		String sSQL = "INSERT INTO " + sName + "(";
+		String sValues = ") VALUES(";
+		while(rs.next()){
+			String sColName = rs.getString(1);
+			if(nColNo++ > 0){
+				sSQL += ", ";
+				sValues += ", ";
+			}
+			sSQL += sColName;
+			sValues += "?";
+			aBindVars.add((String)oInput.get(sColName));
+		}
+		sSQL += sValues + ")";
+		return sSQL;
 	}
 }
