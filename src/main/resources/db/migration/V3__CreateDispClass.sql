@@ -3,5 +3,3 @@ CREATE TABLE DispClass (
 	name VARCHAR(45),
 	CONSTRAINT DispClass_primary PRIMARY KEY (idDispClass)
 );
-
-INSERT INTO DispClass(name) VALUES('TestMon');

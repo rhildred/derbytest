@@ -21,15 +21,19 @@
 					.getInputStream());
 			InspectionObject oInspection = new InspectionObject(sBody);
 			oInspection.save();
+			out.println("{\"result\":\"success\"}");
 			//System.out.println(body);
 		} else if (request.getMethod().equalsIgnoreCase("delete")) {
 			String sBody = ResultSetValue.toJsonString(request
 					.getInputStream());
 			InspectionObject oInspection = new InspectionObject(sBody);
 			oInspection.delete();
+			out.println("{\"result\":\"success\"}");
 			//System.out.println(body);
 		}
 	} catch (Exception e) {
 		e.printStackTrace();
+		out.println(e.toString());
+
 	}
 %>

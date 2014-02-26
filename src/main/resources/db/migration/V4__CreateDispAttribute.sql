@@ -6,6 +6,3 @@ CREATE TABLE DispAttribute(
 	formType VARCHAR(45),
 	CONSTRAINT DispAttribute_primary PRIMARY KEY (idDispAttribute)
 );
-
-INSERT INTO DispAttribute(idDispClass, name, SQLType, formType) VALUES(1, 'id', 'INT', 'text'),
-(1, 'name', 'VARCHAR(45)', 'text');

@@ -23,15 +23,18 @@
 					.getInputStream());
 			InspectionArchetype oArchetype = new InspectionArchetype(sBody);
 			oArchetype.save();
+			out.println("{\"result\":\"success\"}");
 			//System.out.println(body);
 		} else if (request.getMethod().equalsIgnoreCase("delete")) {
 			String sBody = ResultSetValue.toJsonString(request
 					.getInputStream());
 			InspectionArchetype oArchetype = new InspectionArchetype(sBody);
 			oArchetype.delete();
+			out.println("{\"result\":\"success\"}");
 			//System.out.println(body);
 		}
 	} catch (Exception e) {
 		e.printStackTrace();
+		out.println(e.toString());
 	}
 %>
